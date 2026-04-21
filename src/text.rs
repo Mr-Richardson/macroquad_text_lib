@@ -2,19 +2,19 @@ use macroquad::color::Color;
 use macroquad::prelude::measure_text;
 use macroquad::text::{draw_text, Font};
 
-enum AlignX {
-Left,
-Center,
-Right,
+pub enum AlignX {
+    Left,
+    Center,
+    Right,
 }
 
-enum AlignY {
-Top,
-Center,
-Bottom,
+pub enum AlignY {
+    Top,
+    Center,
+    Bottom,
 }
 
-struct Text {
+pub struct Text {
     font: Font,
     align_x: AlignX,
     align_y: AlignY,
@@ -33,7 +33,7 @@ impl Text {
         }
     }
 
-    fn draw(&self, text: &str, mut x: f32, mut y: f32, max_w: f32) {
+    pub fn draw(&self, text: &str, x: f32, y: f32, max_w: f32) {
         let dimensions = measure_text(text, Some(&self.font), self.size, 1.0);
         match self.align_x {
             AlignX::Center => x -= dimensions.width / 2.0,
