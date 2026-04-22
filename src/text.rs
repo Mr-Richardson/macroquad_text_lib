@@ -31,7 +31,8 @@ impl Text {
         let mut raw_str = text;
         let mut dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
         let mut lines: Vec<String> = Vec::new();
-        while dimensions.width > max_w {//TODO: test
+        while dimensions.width > max_w {
+            //TODO: test
             let mut i = (raw_str.len() as f32 * dimensions.width / max_w) as usize;
             while raw_str.chars().nth(i) != Option::from(' ') && i != 0 {
                 i -= 1;
