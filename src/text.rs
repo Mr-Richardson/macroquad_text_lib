@@ -1,4 +1,5 @@
 use macroquad::color::Color;
+use macroquad::math::Vec2;
 use macroquad::prelude::{TextParams, draw_text_ex, measure_text};
 use macroquad::text::Font;
 
@@ -14,58 +15,50 @@ pub enum AlignY {
     Bottom,
 }
 
+pub struct Alignment {
+    pub x: AlignX,
+    pub y: AlignY,
+}
+
+struct Line {
+    text: String,
+    x_offset: f32,
+    y_offset: f32,
+}
+
 pub struct Text {
+    pos: Vec2,
+    max_w: f32,
+    text: String,
     font: Font,
-    align_x: AlignX,
-    align_y: AlignY,
+    alignment: Alignment,
     size: u16,
     color: Color,
+    lines: Vec<Line>,
 }
 
 impl Text {
-    pub fn new(font: Font, align_x: AlignX, align_y: AlignY, size: u16, color: Color) -> Text {
-        Text { font, align_x, align_y, size, color }
+    pub fn new(pos: Vec2, max_w: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
+        let mut t = Text {
+            pos,
+            max_w,
+            text,
+            font,
+            alignment,
+            size,
+            color,
+            lines: Vec::new(),
+        };
+        t.update_all();
+        t
     }
 
-    pub fn draw(&self, text: &str, x: f32, y: f32, max_w: f32) {
-        let mut raw_str = text;
-        let mut dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
-        let mut lines: Vec<String> = Vec::new();
-        while dimensions.width > max_w {
-            //TODO: test
-            let mut i = (raw_str.len() as f32 * dimensions.width / max_w) as usize;
-            while raw_str.chars().nth(i) != Option::from(' ') && i != 0 {
-                i -= 1;
-            }
-            let add: &str;
-            if i == 0 {
-                (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * dimensions.width / max_w) as usize);
-            } else {
-                (add, raw_str) = raw_str.split_at(i);
-            }
-            lines.push(add.to_string());
-            dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
-        }
-        if dimensions.width <= max_w {
-            lines.push(raw_str.to_string());
-        }
-        let lines_len = lines.len();
-        for (i, str) in lines.iter().enumerate() {
-            let dimensions = measure_text(str, Some(&self.font), self.size, 1.0);
-            let render_x: f32 = match self.align_x {
-                AlignX::Center => x - dimensions.width / 2.0,
-                AlignX::Right => x - dimensions.width,
-                AlignX::Left => x,
-            };
-            let render_y: f32 = match self.align_y {
-                AlignY::Center => y + dimensions.offset_y * (i as f32 - lines_len as f32 / 2.0 + 0.5),
-                AlignY::Top => y + dimensions.offset_y * (i as f32 + 1.0),
-                AlignY::Bottom => y + dimensions.offset_y * (i as f32 - lines_len as f32 + 1.0),
-            };
+    pub fn draw(&self) {
+        for line in &self.lines {
             draw_text_ex(
-                str,
-                render_x,
-                render_y,
+                &line.text,
+                self.pos.x + line.x_offset,
+                self.pos.y + line.y_offset,
                 TextParams {
                     font: Some(&self.font),
                     font_size: self.size,
@@ -73,6 +66,78 @@ impl Text {
                     ..Default::default()
                 },
             );
+        }
+    }
+
+    pub fn set_font(&mut self, font: Font) {
+        self.font = font;
+        self.update_all();
+    }
+
+    pub fn set_align_x(&mut self, align_x: AlignX) {
+        self.alignment.x = align_x;
+        self.update_alignment();
+    }
+
+    pub fn set_align_y(&mut self, align_y: AlignY) {
+        self.alignment.y = align_y;
+        self.update_alignment();
+    }
+
+    pub fn set_size(&mut self, size: u16) {
+        self.size = size;
+        self.update_all();
+    }
+
+    pub fn set_color(&mut self, color: Color) {
+        self.color = color;
+    }
+
+    fn update_all(&mut self) {
+        self.lines.clear();
+        let mut raw_str = self.text.as_str();
+        let mut dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
+        while dimensions.width > self.max_w {
+            //TODO: test
+            let mut i = (raw_str.len() as f32 * dimensions.width / self.max_w) as usize;
+            while raw_str.chars().nth(i) != Option::from(' ') && i != 0 {
+                i -= 1;
+            }
+            let add: &str;
+            if i == 0 {
+                (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * dimensions.width / self.max_w) as usize);
+            } else {
+                (add, raw_str) = raw_str.split_at(i);
+            }
+            self.lines.push(Line {
+                text: add.to_string(),
+                x_offset: 0.0,
+                y_offset: 0.0,
+            });
+            dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
+        }
+        self.lines.push(Line {
+            text: raw_str.to_string(),
+            x_offset: 0.0,
+            y_offset: 0.0,
+        });
+        self.update_alignment();
+    }
+
+    fn update_alignment(&mut self) {
+        let lines_len = self.lines.len();
+        for (i, line) in self.lines.iter_mut().enumerate() {
+            let dimensions = measure_text(&line.text, Some(&self.font), self.size, 1.0);
+            line.x_offset = match self.alignment.x {
+                AlignX::Center => -dimensions.width / 2.0,
+                AlignX::Right => -dimensions.width,
+                AlignX::Left => 0.0,
+            };
+            line.y_offset = match self.alignment.y {
+                AlignY::Center => dimensions.offset_y * (i as f32 - lines_len as f32 / 2.0 + 0.5),
+                AlignY::Top => dimensions.offset_y * (i as f32 + 1.0),
+                AlignY::Bottom => dimensions.offset_y * (i as f32 - lines_len as f32 + 1.0),
+            };
         }
     }
 }
