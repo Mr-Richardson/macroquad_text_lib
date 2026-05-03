@@ -69,6 +69,20 @@ impl Text {
         }
     }
 
+    pub fn set_pos(&mut self, pos: Vec2) {
+        self.pos = pos;
+    }
+
+    pub fn set_max_w(&mut self, max_w: f32) {
+        self.max_w = max_w;
+        self.update_all();
+    }
+
+    pub fn set_text(&mut self, text: String) {
+        self.text = text;
+        self.update_all();
+    }
+
     pub fn set_font(&mut self, font: Font) {
         self.font = font;
         self.update_all();
