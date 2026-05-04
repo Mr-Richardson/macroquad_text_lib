@@ -26,19 +26,19 @@ struct Line {
     y_offset: f32,
 }
 
-pub struct Text {
+pub struct Text<'a> {
     pos: Vec2,
     max_w: f32,
     text: String,
-    font: Font,
+    font: &'a Font,
     alignment: Alignment,
     size: u16,
     color: Color,
     lines: Vec<Line>,
 }
 
-impl Text {
-    pub fn new(pos: Vec2, max_w: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
+impl<'a> Text<'a> {
+    pub fn new(pos: Vec2, max_w: f32, text: String, font: &'a Font, alignment: Alignment, size: u16, color: Color) -> Text<'a> {
         let mut t = Text {
             pos,
             max_w,
@@ -83,7 +83,7 @@ impl Text {
         self.update_all();
     }
 
-    pub fn set_font(&mut self, font: Font) {
+    pub fn set_font(&mut self, font: &'a Font) {
         self.font = font;
         self.update_all();
     }
