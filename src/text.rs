@@ -6,7 +6,7 @@ use macroquad::text::Font;
 pub enum AlignX {
     Left,
     Center,
-    Right,
+    Right ,
 }
 
 pub enum AlignY {
@@ -26,19 +26,19 @@ struct Line {
     y_offset: f32,
 }
 
-pub struct Text<'a> {
+pub struct Text {
     pos: Vec2,
     max_w: f32,
     text: String,
-    font: &'a Font,
+    font: Font,
     alignment: Alignment,
     size: u16,
     color: Color,
     lines: Vec<Line>,
 }
 
-impl<'a> Text<'a> {
-    pub fn new(pos: Vec2, max_w: f32, text: String, font: &'a Font, alignment: Alignment, size: u16, color: Color) -> Text<'a> {
+impl Text {
+    pub fn new(pos: Vec2, max_w: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
         let mut t = Text {
             pos,
             max_w,
@@ -83,7 +83,7 @@ impl<'a> Text<'a> {
         self.update_all();
     }
 
-    pub fn set_font(&mut self, font: &'a Font) {
+    pub fn set_font(&mut self, font: Font) {
         self.font = font;
         self.update_all();
     }
