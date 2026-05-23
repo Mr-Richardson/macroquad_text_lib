@@ -5,7 +5,7 @@ use macroquad::text::Font;
 
 pub enum AlignX {
     Left,
-    Center ,
+    Center,
     Right ,
 }
 
