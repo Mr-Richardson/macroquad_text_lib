@@ -2,9 +2,9 @@ name: Rust CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "unstable" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "unstable" ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -28,3 +28,4 @@ jobs:
 
       - name: Run Tests
         run: cargo test --all-targets --all-features
+#TODO automatically push to main branch on success

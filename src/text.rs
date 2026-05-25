@@ -119,12 +119,9 @@ impl Text {
         let mut raw_str = self.text.as_str();
         let mut dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
         while dimensions.width > self.width {
-            // Estimate split point based on width ratio
+            // TODO: Panic origin - The logic below uses byte-based slicing. If a split point or index falls inside a multi-byte UTF-8 character (e.g. an emoji), the program will panic.
             let split_index = (raw_str.len() as f32 * (self.width / dimensions.width)) as usize;
-
-            // Find the last space before the estimated split point
-            let i = raw_str[..split_index.min(raw_str.len())].rfind(' ').unwrap_or(1);
-
+            let i = raw_str[..split_index.min(raw_str.len())].rfind(' ').unwrap_or(1); //TODO: understand this
             let add: &str;
             if i == 0 {
                 (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * self.width / dimensions.width) as usize);
