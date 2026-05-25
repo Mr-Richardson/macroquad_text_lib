@@ -72,29 +72,32 @@ impl Text {
         }
     }
 
-    /// Changes the top left position of the text field
+    /// Changes the top left **position** of the text field
     pub fn set_pos(&mut self, pos: Vec2) {
         self.pos = pos;
     }
 
-    /// Changes the width of the text field
+    /// Changes the **width** of the text field.
+    /// Negative values will make the text expand to the **left**!
     pub fn set_max_w(&mut self, max_w: f32) {
         self.max_w = max_w.max(0.0);
         self.update_all();
     }
 
-    /// Changes the text of the text field.
-    /// Only plain text strings are currently supported.
+    /// Changes the **text** of the text field and triggers an internal **recalculation** of the text arrangement.
+    /// Only **plain text strings** are currently supported.
     pub fn set_text(&mut self, text: String) {
         self.text = text;
         self.update_all();
     }
 
+/// Changes the **font** of the text and triggers an internal **recalculation** of the text arrangement.
     pub fn set_font(&mut self, font: Font) {
         self.font = font;
         self.update_all();
     }
 
+/// Changes the **alignment** of the text in the field and triggers an internal **recalculation** of the text alignment.
     pub fn set_alignment(&mut self, alignment: Alignment) {
         self.alignment = alignment;
         self.update_alignment();
@@ -110,6 +113,7 @@ impl Text {
         self.color = color;
     }
 
+/// Triggers a **recalculation** of the text arrangement.
     fn update_all(&mut self) {
         self.lines.clear();
         let mut raw_str = self.text.as_str();
@@ -141,6 +145,7 @@ impl Text {
         self.update_alignment();
     }
 
+/// Triggers an **recalculation** of the text alignment.
     fn update_alignment(&mut self) {
         let lines_len = self.lines.len();
         for (i, line) in self.lines.iter_mut().enumerate() {
