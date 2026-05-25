@@ -172,19 +172,51 @@ mod tests {
     #[test]
     fn test_text_wrapping_and_drawing() {
         macroquad::Window::new("Integration Test", async {
-            let pos = vec2(100.0, 100.0);
-            let content = "A quick brown fox jumps over the lazy dog.".to_string();
+            let content = "A quick brown fox jumps.".to_string();
             let mut w: f32 = 100.0;
+            let size = 70;
 
-            let mut text = Text::new(pos, w, content, load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(), Alignment { x: AlignX::Left, y: AlignY::Top }, 20, WHITE);
+            let mut text_center = Text::new(
+                vec2(100.0, 100.0),
+                w,
+                content.clone(),
+                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
+                Alignment { x: AlignX::Left, y: AlignY::Center },
+                size,
+                WHITE,
+            );
+            let mut text_top = Text::new(
+                vec2(100.0, 300.0),
+                w,
+                content.clone(),
+                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
+                Alignment { x: AlignX::Left, y: AlignY::Top },
+                size,
+                WHITE,
+            );
+            let mut text_bottom = Text::new(
+                vec2(100.0, 500.0),
+                w,
+                content.clone(),
+                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
+                Alignment { x: AlignX::Left, y: AlignY::Bottom },
+                size,
+                WHITE,
+            );
             loop {
                 clear_background(BLACK);
                 if is_mouse_button_pressed(MouseButton::Left) {
-                    w = mouse_position().0 - pos.x;
-                    text.set_width(w);
+                    w = mouse_position().0 - 100.0;
+                    text_center.set_width(w);
+                    text_top.set_width(w);
+                    text_bottom.set_width(w);
                 }
-                draw_rectangle(pos.x, pos.y, w, screen_height() - pos.y, RED);
-                text.draw();
+                draw_rectangle(100.0, 100.0, w, 150.0, RED);
+                draw_rectangle(100.0, 300.0, w, 150.0, RED);
+                draw_rectangle(100.0, 500.0, w, 150.0, RED);
+                text_center.draw();
+                text_top.draw();
+                text_bottom.draw();
                 next_frame().await;
             }
         });
