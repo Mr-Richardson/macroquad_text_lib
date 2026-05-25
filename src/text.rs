@@ -74,7 +74,7 @@ impl Text {
     }
 
     pub fn set_max_w(&mut self, max_w: f32) {
-        self.max_w = max_w;
+        self.max_w = max_w.max(0.0);
         self.update_all();
     }
 
