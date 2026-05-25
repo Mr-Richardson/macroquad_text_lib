@@ -3,14 +3,12 @@ use macroquad::math::Vec2;
 use macroquad::prelude::{TextParams, draw_text_ex, measure_text};
 use macroquad::text::Font;
 
-/// Self-explanatory enums for horizontal text alignment.
 pub enum AlignX {
     Left,
     Center,
     Right,
 }
 
-/// Self-explanatory enums for vertical text alignment.
 pub enum AlignY {
     Top,
     Center,
@@ -30,7 +28,6 @@ struct Line {
     y_offset: f32,
 }
 
-/// Struct for all properties of a text field
 pub struct Text {
     pos: Vec2,
     max_w: f32,
@@ -44,7 +41,6 @@ pub struct Text {
 
 /// Impl for text fields
 impl Text {
-    /// Function to create a new text field
     pub fn new(pos: Vec2, max_w: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
         let mut t = Text {
             pos,
@@ -60,7 +56,6 @@ impl Text {
         t
     }
 
-    /// Draws the text with the current settings
     pub fn draw(&self) {
         for line in &self.lines {
             draw_text_ex(
