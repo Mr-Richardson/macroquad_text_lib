@@ -3,29 +3,34 @@ use macroquad::math::Vec2;
 use macroquad::prelude::{TextParams, draw_text_ex, measure_text};
 use macroquad::text::Font;
 
+/// Self-explanatory enums for horizontal text alignment.
 pub enum AlignX {
     Left,
     Center,
     Right,
 }
 
+/// Self-explanatory enums for vertical text alignment.
 pub enum AlignY {
     Top,
     Center,
     Bottom,
 }
 
+/// Struct to hold both horizontal and vertical alignment settings.
 pub struct Alignment {
     pub x: AlignX,
     pub y: AlignY,
 }
 
+/// Internal struct to represent a single line of text, along with its offset from the main position.
 struct Line {
     text: String,
     x_offset: f32,
     y_offset: f32,
 }
 
+/// Struct for all properties of a text field
 pub struct Text {
     pos: Vec2,
     max_w: f32,
@@ -37,7 +42,9 @@ pub struct Text {
     lines: Vec<Line>,
 }
 
+/// Impl for text fields
 impl Text {
+    /// Function to create a new text field
     pub fn new(pos: Vec2, max_w: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
         let mut t = Text {
             pos,
@@ -53,6 +60,7 @@ impl Text {
         t
     }
 
+    /// Draws the text with the current settings
     pub fn draw(&self) {
         for line in &self.lines {
             draw_text_ex(
@@ -69,15 +77,19 @@ impl Text {
         }
     }
 
+    /// Changes the top left position of the text field
     pub fn set_pos(&mut self, pos: Vec2) {
         self.pos = pos;
     }
 
+    /// Changes the width of the text field
     pub fn set_max_w(&mut self, max_w: f32) {
         self.max_w = max_w.max(0.0);
         self.update_all();
     }
 
+    /// Changes the text of the text field.
+    /// Only plain text strings are currently supported.
     pub fn set_text(&mut self, text: String) {
         self.text = text;
         self.update_all();
