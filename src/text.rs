@@ -155,10 +155,9 @@ impl Text {
                 AlignX::Left => self.width.min(0.0),
             };
             line.y_offset = match self.alignment.y {
-                //TODO: don't align based of the baseline
-                AlignY::Center => self.size as f32 * (i as f32 - lines_len as f32 / 2.0 + 0.5),
-                AlignY::Top => self.size as f32 * (i + 1) as f32,
-                AlignY::Bottom => self.size as f32 * (i as f32 - lines_len as f32 + 1.0),
+                AlignY::Center => self.size as f32 * (i as f32 - lines_len as f32 / 2.0 + 0.8),
+                AlignY::Top => self.size as f32 * (i as f32 + 0.8),
+                AlignY::Bottom => self.size as f32 * (i as f32 - lines_len as f32 + 0.8),
             };
         }
     }
