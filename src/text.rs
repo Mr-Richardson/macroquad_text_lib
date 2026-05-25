@@ -155,3 +155,39 @@ impl Text {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+use macroquad::{prelude::*};
+use super::*;
+
+#[test]
+fn test_text_wrapping_and_drawing() {
+    macroquad::Window::new("Integration Test", async {
+        let pos = vec2(100.0, 100.0);
+        let content = "This is a long sentence that should definitely wrap.".to_string();
+        let mut w:f32 = 100.0;
+        
+        let mut text = Text::new(
+            pos,
+            w,
+            content,
+            load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
+            Alignment { x: AlignX::Left, y: AlignY::Center },
+            20,
+            WHITE,
+        );
+        loop {
+            clear_background(BLACK);
+            if is_mouse_button_pressed (MouseButton::Left) {
+                w = mouse_position().0-pos.x;
+                text.set_max_w(w);
+            }
+            draw_rectangle(pos.x, pos.y, w, screen_height()-pos.y, RED);
+            text.draw();
+            next_frame().await;
+        }
+    });
+}
+}
