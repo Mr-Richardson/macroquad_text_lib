@@ -80,7 +80,7 @@ impl Text {
     /// Changes the **width** of the text field.
     /// Negative values will make the text expand to the **left**!
     pub fn set_width(&mut self, width: f32) {
-        self.width = width.max(0.0); //TODO: replace clamping with the text expanding to the left
+        self.width = width;
         self.update_all();
     }
 
@@ -118,13 +118,13 @@ impl Text {
         self.lines.clear();
         let mut raw_str = self.text.as_str();
         let mut dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
-        while dimensions.width > self.width {
+        while dimensions.width > self.width.abs() {
             // TODO: Panic origin - The logic below uses byte-based slicing. If a split point or index falls inside a multi-byte UTF-8 character (e.g. an emoji), the program will panic.
-            let split_index = (raw_str.len() as f32 * (self.width / dimensions.width)) as usize;
+            let split_index = (raw_str.len() as f32 * (self.width.abs() / dimensions.width)) as usize;
             let i = raw_str[..split_index.min(raw_str.len())].rfind(' ').unwrap_or(1); //TODO: understand this
             let add: &str;
             if i == 0 {
-                (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * self.width / dimensions.width) as usize);
+                (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * self.width.abs() / dimensions.width) as usize);
             } else {
                 (add, raw_str) = raw_str.split_at(i);
                 raw_str = raw_str.trim_start(); // Remove the leading space for the next line
@@ -150,9 +150,9 @@ impl Text {
         for (i, line) in self.lines.iter_mut().enumerate() {
             let dimensions = measure_text(&line.text, Some(&self.font), self.size, 1.0);
             line.x_offset = match self.alignment.x {
-                AlignX::Center => -dimensions.width / 2.0,
-                AlignX::Right => -dimensions.width,
-                AlignX::Left => 0.0,
+                AlignX::Center => -dimensions.width / 2.0 + self.width.min(0.0),
+                AlignX::Right => -dimensions.width + self.width.min(0.0),
+                AlignX::Left => self.width.min(0.0),
             };
             line.y_offset = match self.alignment.y {
                 //TODO: don't align based of the baseline
@@ -177,15 +177,7 @@ mod tests {
             let content = "A quick brown fox jumps over the lazy dog.".to_string();
             let mut w: f32 = 100.0;
 
-            let mut text = Text::new(
-                pos,
-                w,
-                content,
-                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
-                Alignment { x: AlignX::Left, y: AlignY::Bottom },
-                20,
-                WHITE,
-            );
+            let mut text = Text::new(pos, w, content, load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(), Alignment { x: AlignX::Left, y: AlignY::Top }, 20, WHITE);
             loop {
                 clear_background(BLACK);
                 if is_mouse_button_pressed(MouseButton::Left) {
