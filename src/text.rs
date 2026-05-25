@@ -30,7 +30,7 @@ struct Line {
 
 pub struct Text {
     pos: Vec2,
-    max_w: f32,
+    width: f32,
     text: String,
     font: Font,
     alignment: Alignment,
@@ -41,10 +41,10 @@ pub struct Text {
 
 /// Impl for text fields
 impl Text {
-    pub fn new(pos: Vec2, max_w: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
+    pub fn new(pos: Vec2, width: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
         let mut t = Text {
             pos,
-            max_w,
+            width,
             text,
             font,
             alignment,
@@ -79,8 +79,8 @@ impl Text {
 
     /// Changes the **width** of the text field.
     /// Negative values will make the text expand to the **left**!
-    pub fn set_max_w(&mut self, max_w: f32) {
-        self.max_w = max_w.max(0.0);
+    pub fn set_width(&mut self, width: f32) {
+        self.width = width.max(0.0); //TODO: replace clamping with the text expanding to the left
         self.update_all();
     }
 
@@ -91,13 +91,13 @@ impl Text {
         self.update_all();
     }
 
-/// Changes the **font** of the text and triggers an internal **recalculation** of the text arrangement.
+    /// Changes the **font** of the text and triggers an internal **recalculation** of the text arrangement.
     pub fn set_font(&mut self, font: Font) {
         self.font = font;
         self.update_all();
     }
 
-/// Changes the **alignment** of the text in the field and triggers an internal **recalculation** of the text alignment.
+    /// Changes the **alignment** of the text in the field and triggers an internal **recalculation** of the text alignment.
     pub fn set_alignment(&mut self, alignment: Alignment) {
         self.alignment = alignment;
         self.update_alignment();
@@ -113,22 +113,24 @@ impl Text {
         self.color = color;
     }
 
-/// Triggers a **recalculation** of the text arrangement.
+    /// Triggers a **recalculation** of the text arrangement.
     fn update_all(&mut self) {
         self.lines.clear();
         let mut raw_str = self.text.as_str();
         let mut dimensions = measure_text(raw_str, Some(&self.font), self.size, 1.0);
-        while dimensions.width > self.max_w {
-            //TODO: test
-            let mut i = (raw_str.len() as f32 * dimensions.width / self.max_w) as usize;
-            while raw_str.chars().nth(i) != Option::from(' ') && i != 0 {
-                i -= 1;
-            }
+        while dimensions.width > self.width {
+            // Estimate split point based on width ratio
+            let split_index = (raw_str.len() as f32 * (self.width / dimensions.width)) as usize;
+
+            // Find the last space before the estimated split point
+            let i = raw_str[..split_index.min(raw_str.len())].rfind(' ').unwrap_or(1);
+
             let add: &str;
             if i == 0 {
-                (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * dimensions.width / self.max_w) as usize);
+                (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * self.width / dimensions.width) as usize);
             } else {
                 (add, raw_str) = raw_str.split_at(i);
+                raw_str = raw_str.trim_start(); // Remove the leading space for the next line
             }
             self.lines.push(Line {
                 text: add.to_string(),
@@ -145,7 +147,7 @@ impl Text {
         self.update_alignment();
     }
 
-/// Triggers an **recalculation** of the text alignment.
+    /// Triggers an **recalculation** of the text alignment.
     fn update_alignment(&mut self) {
         let lines_len = self.lines.len();
         for (i, line) in self.lines.iter_mut().enumerate() {
@@ -168,35 +170,35 @@ impl Text {
 #[cfg(test)]
 mod tests {
 
-use super::*;
+    use super::*;
     use macroquad::prelude::*;
 
-#[test]
-fn test_text_wrapping_and_drawing() {
-    macroquad::Window::new("Integration Test", async {
-        let pos = vec2(100.0, 100.0);
-        let content = "A quick brown fox jumps over the lazy dog.".to_string();
+    #[test]
+    fn test_text_wrapping_and_drawing() {
+        macroquad::Window::new("Integration Test", async {
+            let pos = vec2(100.0, 100.0);
+            let content = "A quick brown fox jumps over the lazy dog.".to_string();
             let mut w: f32 = 100.0;
-        
-        let mut text = Text::new(
-            pos,
-            w,
-            content,
-            load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
+
+            let mut text = Text::new(
+                pos,
+                w,
+                content,
+                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
                 Alignment { x: AlignX::Left, y: AlignY::Bottom },
-            20,
-            WHITE,
-        );
-        loop {
-            clear_background(BLACK);
+                20,
+                WHITE,
+            );
+            loop {
+                clear_background(BLACK);
                 if is_mouse_button_pressed(MouseButton::Left) {
                     w = mouse_position().0 - pos.x;
-                text.set_max_w(w);
-            }
+                    text.set_width(w);
+                }
                 draw_rectangle(pos.x, pos.y, w, screen_height() - pos.y, RED);
-            text.draw();
-            next_frame().await;
-        }
-    });
-}
+                text.draw();
+                next_frame().await;
+            }
+        });
+    }
 }
