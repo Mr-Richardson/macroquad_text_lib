@@ -95,16 +95,12 @@ impl Text {
         self.update_all();
     }
 
-    pub fn set_align_x(&mut self, align_x: AlignX) {
-        self.alignment.x = align_x;
+    pub fn set_alignment(&mut self, alignment: Alignment) {
+        self.alignment = alignment;
         self.update_alignment();
     }
 
-    pub fn set_align_y(&mut self, align_y: AlignY) {
-        self.alignment.y = align_y;
-        self.update_alignment();
-    }
-
+    /// Changes the **size** of the text and triggers an internal **recalculation** of the text arrangement.
     pub fn set_size(&mut self, size: u16) {
         self.size = size;
         self.update_all();
