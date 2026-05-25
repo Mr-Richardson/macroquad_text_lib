@@ -148,9 +148,10 @@ impl Text {
                 AlignX::Left => 0.0,
             };
             line.y_offset = match self.alignment.y {
-                AlignY::Center => dimensions.offset_y * (i as f32 - lines_len as f32 / 2.0 + 0.5),
-                AlignY::Top => dimensions.offset_y * (i as f32 + 1.0),
-                AlignY::Bottom => dimensions.offset_y * (i as f32 - lines_len as f32 + 1.0),
+                //TODO: don't align based of the baseline
+                AlignY::Center => self.size as f32 * (i as f32 - lines_len as f32 / 2.0 + 0.5),
+                AlignY::Top => self.size as f32 * (i + 1) as f32,
+                AlignY::Bottom => self.size as f32 * (i as f32 - lines_len as f32 + 1.0),
             };
         }
     }
@@ -166,7 +167,7 @@ use super::*;
 fn test_text_wrapping_and_drawing() {
     macroquad::Window::new("Integration Test", async {
         let pos = vec2(100.0, 100.0);
-        let content = "This is a long sentence that should definitely wrap.".to_string();
+        let content = "A quick brown fox jumps over the lazy dog.".to_string();
         let mut w:f32 = 100.0;
         
         let mut text = Text::new(
@@ -174,7 +175,7 @@ fn test_text_wrapping_and_drawing() {
             w,
             content,
             load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
-            Alignment { x: AlignX::Left, y: AlignY::Center },
+                Alignment { x: AlignX::Left, y: AlignY::Bottom },
             20,
             WHITE,
         );
