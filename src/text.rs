@@ -169,6 +169,7 @@ mod tests {
     use super::*;
     use macroquad::prelude::*;
 
+    #[ignore = "Requires a graphical window, skip in CI"]
     #[test]
     fn test_text_wrapping_and_drawing() {
         macroquad::Window::new("Integration Test", async {
