@@ -177,33 +177,9 @@ mod tests {
             let mut w: f32 = 100.0;
             let size = 70;
 
-            let mut text_center = Text::new(
-                vec2(100.0, 100.0),
-                w,
-                content.clone(),
-                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
-                Alignment { x: AlignX::Left, y: AlignY::Center },
-                size,
-                WHITE,
-            );
-            let mut text_top = Text::new(
-                vec2(100.0, 300.0),
-                w,
-                content.clone(),
-                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
-                Alignment { x: AlignX::Left, y: AlignY::Top },
-                size,
-                WHITE,
-            );
-            let mut text_bottom = Text::new(
-                vec2(100.0, 500.0),
-                w,
-                content.clone(),
-                load_ttf_font("JetBrainsMono-VariableFont_wght.ttf").await.unwrap(),
-                Alignment { x: AlignX::Left, y: AlignY::Bottom },
-                size,
-                WHITE,
-            );
+            let mut text_center = Text::new(vec2(100.0, 100.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Center }, size, WHITE);
+            let mut text_top = Text::new(vec2(100.0, 300.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Top }, size, WHITE);
+            let mut text_bottom = Text::new(vec2(100.0, 500.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Bottom }, size, WHITE);
             loop {
                 clear_background(BLACK);
                 if is_mouse_button_pressed(MouseButton::Left) {
