@@ -28,6 +28,7 @@ struct Line {
     y_offset: f32,
 }
 
+/// Contains all information about a text field.
 pub struct Text {
     pos: Vec2,
     width: f32,
@@ -39,7 +40,6 @@ pub struct Text {
     lines: Vec<Line>,
 }
 
-/// Impl for text fields
 impl Text {
     pub fn new(pos: Vec2, width: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
         let mut t = Text {
