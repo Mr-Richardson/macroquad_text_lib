@@ -1,7 +1,16 @@
 [package]
 name = "text_lib"
 version = "0.1.0"
+authors = ["Mr Richardson"]
 edition = "2024"
+description = "Simple macroquad text rendering with line wrapping."
+documentation = "https://docs.rs/text_lib" # TODO verify
+readme = "README.md"
+repository = "https://github.com/Mr-Richardson/macroquad_text_lib"
+license = "GNU General Public License v3.0"
+license-file = "LICENSE.txt"
+keywords = ["text", "macroquad", "line-wrapping"]
+categories = ["game-development", "gui", "text-processing", "rendering", "graphics"] # TODO
 
 [dependencies]
 macroquad = "0.4.14"
