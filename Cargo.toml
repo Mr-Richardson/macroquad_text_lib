@@ -13,4 +13,4 @@ keywords = ["text", "macroquad", "line-wrapping"]
 categories = ["game-development", "gui", "text-processing", "rendering", "graphics"] # TODO
 
 [dependencies]
-macroquad = "0.4.14"
+macroquad = "0.4.15"
