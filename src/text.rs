@@ -72,23 +72,27 @@ impl Text {
         }
     }
 
-    /// Changes the top left **position** of the text field
+    /// Changes the top left **position** of the text field.
     pub fn set_pos(&mut self, pos: Vec2) {
         self.pos = pos;
     }
 
-    /// Changes the **width** of the text field.
+    /// Changes the **width** of the text field and triggers an internal **recalculation** of the text arrangement if the width changed.
     /// Negative values will make the text expand to the **left**!
     pub fn set_width(&mut self, width: f32) {
-        self.width = width;
-        self.update_all();
+        if self.width != width {
+            self.width = width;
+            self.update_all();
+        }
     }
 
-    /// Changes the **text** of the text field and triggers an internal **recalculation** of the text arrangement.
+    /// Changes the **text** of the text field and triggers an internal **recalculation** of the text arrangement if the text changed.
     /// Only **plain text strings** are currently supported.
     pub fn set_text(&mut self, text: String) {
-        self.text = text;
-        self.update_all();
+        if self.text != text {
+            self.text = text;
+            self.update_all();
+        }
     }
 
     /// Changes the **font** of the text and triggers an internal **recalculation** of the text arrangement.
@@ -97,16 +101,20 @@ impl Text {
         self.update_all();
     }
 
-    /// Changes the **alignment** of the text in the field and triggers an internal **recalculation** of the text alignment.
+    /// Changes the **alignment** of the text in the field and triggers an internal **recalculation** of the text alignment if the alignment changed.
     pub fn set_alignment(&mut self, alignment: Alignment) {
-        self.alignment = alignment;
-        self.update_alignment();
+        if self.alignment != alignment {
+            self.alignment = alignment;
+            self.update_alignment();
+        }
     }
 
-    /// Changes the **size** of the text and triggers an internal **recalculation** of the text arrangement.
+    /// Changes the **size** of the text and triggers an internal **recalculation** of the text arrangement if the size changed.
     pub fn set_size(&mut self, size: u16) {
-        self.size = size;
-        self.update_all();
+        if self.size != size {
+            self.size = size;
+            self.update_all();
+        }
     }
 
     pub fn set_color(&mut self, color: Color) {
