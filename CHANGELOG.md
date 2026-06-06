@@ -1,3 +1,8 @@
+## [vtext_lib@0.1.3] - 2026-06-06
+
+### Bug Fixes
+- fix(text): adjust split index if th one word is longer than the line
+
 ## [vtext_lib@0.1.2] - 2026-06-06
 
 ### Performance Improvements
