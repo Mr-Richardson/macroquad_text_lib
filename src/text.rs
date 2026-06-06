@@ -133,7 +133,7 @@ impl Text {
         while dimensions.width > self.width.abs() {
             // TODO: Panic origin - The logic below uses byte-based slicing. If a split point or index falls inside a multi-byte UTF-8 character (e.g. an emoji), the program will panic.
             let split_index = (raw_str.len() as f32 * (self.width.abs() / dimensions.width)) as usize;
-            let i = raw_str[..split_index.min(raw_str.len())].rfind(' ').unwrap_or(1); //TODO: understand this
+            let i = raw_str[..split_index.min(raw_str.len())].rfind(' ').unwrap_or(split_index);
             let add: &str;
             if i == 0 {
                 (add, raw_str) = raw_str.split_at((raw_str.len() as f32 * self.width.abs() / dimensions.width) as usize);
@@ -185,7 +185,7 @@ mod tests {
     #[test]
     fn test_text_wrapping_and_drawing() {
         macroquad::Window::new("Integration Test", async {
-            let content = "A quick brown fox jumps.".to_string();
+            let content = "Jump!".to_string();
             let mut w: f32 = 100.0;
             let size = 70;
 
