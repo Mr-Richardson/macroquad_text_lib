@@ -1,6 +1,6 @@
 [package]
 name = "text_lib"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Mr Richardson"]
 edition = "2024"
 description = "Simple macroquad text rendering with line wrapping."
