@@ -41,22 +41,44 @@ jobs:
     name: Publish
     needs: validate
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - name: Generate Changelog
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
         run: |
-          echo "## [v$NEW_VERSION] - $(date +'%Y-%m-%d')" > temp_changelog.md
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          LOCAL_VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
+          CRATE_NAME=$(cargo pkgid | cut -d# -f1 | awk -F/ '{print $NF}' | cut -d: -f1)
+
+          if cargo search $CRATE_NAME | grep -q "$CRATE_NAME = \"$LOCAL_VERSION\""; then
+            echo "Version $LOCAL_VERSION is already exists. Abort."
+            exit 0
+          fi
+          
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+
+          echo "## [v$LOCAL_VERSION] - $(date +'%Y-%m-%d')" > temp_changelog.md
           echo "" >> temp_changelog.md
+
           if git log $LAST_TAG..HEAD --format="%s" | grep -q -E "^[a-z]+(\([a-z]+\))?!:"; then
             echo "### ⚠️ Breaking Changes" >> temp_changelog.md
             git log $LAST_TAG..HEAD --format="- %s" | grep -E "^- [a-z]+(\([a-z]+\))?!:" >> temp_changelog.md
             echo "" >> temp_changelog.md
           fi
-          if git log $LAST_TAG..HEAD --format="%s" | grep -q "^feat"; then
+          if git log $LAST_TAG..HEAD --format="%s" | grep -q -E "^feat(\([a-z0-9_-]+\))?:"; then
             echo "### Features" >> temp_changelog.md
-            git log $LAST_TAG..HEAD --format="- %s" | grep "^- feat" >> temp_changelog.md
+            git log $LAST_TAG..HEAD --format="- %s" | grep -E "^- feat(\([a-z0-9_-]+\))?:" >> temp_changelog.md
             echo "" >> temp_changelog.md
           fi
           if git log $LAST_TAG..HEAD --format="%s" | grep -q -E "^refactor(\([a-z0-9_-]+\))?:"; then
@@ -69,28 +91,23 @@ jobs:
             git log $LAST_TAG..HEAD --format="- %s" | grep -E "^- perf(\([a-z0-9_-]+\))?:" >> temp_changelog.md
             echo "" >> temp_changelog.md
           fi
-          if git log $LAST_TAG..HEAD --format="%s" | grep -q "^fix"; then
+          if git log $LAST_TAG..HEAD --format="%s" | grep -q -E "^fix(\([a-z0-9_-]+\))?:"; then
             echo "### Bug Fixes" >> temp_changelog.md
-            git log $LAST_TAG..HEAD --format="- %s" | grep "^- fix" >> temp_changelog.md
+            git log $LAST_TAG..HEAD --format="- %s" | grep -E "^- fix(\([a-z0-9_-]+\))?:" >> temp_changelog.md
             echo "" >> temp_changelog.md
           fi
+
           if [ -f CHANGELOG.md ]; then
             cat CHANGELOG.md >> temp_changelog.md
           fi
           mv temp_changelog.md CHANGELOG.md
 
-      - name: Publish
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-        run: |
-          LOCAL_VERSION=$(cargo pkgid | cut -d# -f2 | cut -d: -f2)
-          CRATE_NAME=$(cargo pkgid | cut -d# -f1 | awk -F/ '{print $NF}' | cut -d: -f1)
-          if cargo search $CRATE_NAME | grep -q "$CRATE_NAME = \"$LOCAL_VERSION\""; then
-            echo "Version $LOCAL_VERSION is already online. Skipping publish."
-          else
-            cargo publish --token $CARGO_REGISTRY_TOKEN
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git tag "v$LOCAL_VERSION"
-            git push origin "v$LOCAL_VERSION"
-          fi
+          git add CHANGELOG.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: update changelog for v$LOCAL_VERSION [skip ci]"
+
+          git tag "v$LOCAL_VERSION"
+          git pull --rebase origin main || { echo "Rebase failed"; exit 1; }
+          git push origin main
+          git push origin "v$LOCAL_VERSION"
+
+          cargo publish --token $CARGO_REGISTRY_TOKEN
