@@ -1,29 +1,8 @@
+use crate::{AlignX, AlignY, Alignment};
 use macroquad::color::Color;
 use macroquad::math::Vec2;
 use macroquad::prelude::{TextParams, draw_text_ex, measure_text};
 use macroquad::text::Font;
-
-#[derive(PartialEq)]
-pub enum AlignX {
-    Left,
-    Center,
-    Right,
-}
-
-#[derive(PartialEq)]
-pub enum AlignY {
-    Top,
-    Center,
-    Bottom,
-}
-
-/// Struct to hold both horizontal and vertical alignment settings.
-
-#[derive(PartialEq)]
-pub struct Alignment {
-    pub x: AlignX,
-    pub y: AlignY,
-}
 
 /// Internal struct to represent a single line of text, along with its offset from the main position.
 struct Line {
@@ -33,7 +12,7 @@ struct Line {
 }
 
 /// Contains all information about a text field.
-pub struct Text {
+pub struct TextWrap {
     pos: Vec2,
     width: f32,
     text: String,
@@ -44,9 +23,9 @@ pub struct Text {
     lines: Vec<Line>,
 }
 
-impl Text {
-    pub fn new(pos: Vec2, width: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> Text {
-        let mut t = Text {
+impl TextWrap {
+    pub fn new(pos: Vec2, width: f32, text: String, font: Font, alignment: Alignment, size: u16, color: Color) -> TextWrap {
+        let mut t = TextWrap {
             pos,
             width,
             text,
@@ -189,9 +168,9 @@ mod tests {
             let mut w: f32 = 100.0;
             let size = 70;
 
-            let mut text_center = Text::new(vec2(100.0, 100.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Center }, size, WHITE);
-            let mut text_top = Text::new(vec2(100.0, 300.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Top }, size, WHITE);
-            let mut text_bottom = Text::new(vec2(100.0, 500.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Bottom }, size, WHITE);
+            let mut text_center = TextWrap::new(vec2(100.0, 100.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Center }, size, WHITE);
+            let mut text_top = TextWrap::new(vec2(100.0, 300.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Top }, size, WHITE);
+            let mut text_bottom = TextWrap::new(vec2(100.0, 500.0), w, content.clone(), get_default_font(), Alignment { x: AlignX::Left, y: AlignY::Bottom }, size, WHITE);
             loop {
                 clear_background(BLACK);
                 if is_mouse_button_pressed(MouseButton::Left) {
